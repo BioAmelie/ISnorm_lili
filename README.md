@@ -22,14 +22,15 @@ The first step of ISnorm is to calculate pairwise distance between genes:
 ```{r }
 gene_dis<-calculate.dis(mat=mat,detection_rate=0.9,ncore=4)
 ```
-The function `calculate.dis` returns a symmetrical matrix containing the distance between genes. It requires three parameters. The parameter `mat` specifies the input data, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell. The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used to calculate the distance.<br><br>
+The function `calculate.dis` returns a symmetrical matrix containing the distance between genes. It requires 3 parameters. The parameter `mat` specifies expression matrix, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell. The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used to calculate the distance.<br><br>
 This is the most time-consuming step in ISnorm. Utilizing multiple cores can reduce the running time. If you have a dataset with low sparsity (eg. more than 5000 genes included in dowstream analysis), you can set `detection_rate=0.95` to filter more genes, which can help reduce the running time. But we recommand `detection_rate=0.9` as it works well for all the datasets we've tested.<br><br>
 Next we use DBscan algorithm to predict IS genes:
 ```{r }
 spike_candidate<-dbscan.pick(dis=gene_dis,ngene=(1:floor(nrow(gene_dis)/25))*5,solution=100)
 ```
-The function `dbscan.pick` returns a list with each element containing a set of candidate IS geneset. It require three parameters. The parameter `dis` specifies the output from `calculate.dis`. The parameter `ngene` specifies a series of expected number of IS genes and the parameter `solution` specifies the increasing rate of scanning radius. See our article for detailed description of these two parameters. You do not need to change them as they works well for almost all datasets.<br><br>
+The function `dbscan.pick` returns a list with each element containing a set of candidate IS geneset. It require 3 parameters. The parameter `dis` specifies the output from `calculate.dis`. The parameter `ngene` specifies a series of expected number of IS genes and the parameter `solution` specifies the increasing rate of scanning radius. See our article for detailed description of these two parameters. You do not need to change them as they works well for almost all datasets.<br><br>
 We normalize the matrix with each candidate set:
 ```{r }
 candidate_res<-candidate.norm(mat=mat,spike_candidate=spike_candidate,ncore=4)
 ```
+The function `candidate.norm` requires 3 parameters. The parameter `mat` specifies the expression matrix. The paramter `spike_candidate` specifies the output from `dbscan.pick`. The parameter `ncore` specifies the number of cores used.<br>
