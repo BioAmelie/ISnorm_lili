@@ -27,6 +27,10 @@ This is the most time-consuming step in ISnorm. Utilizing multiple cores can red
 ```{r }
 sum(apply(mat,1,function(x) sum(x>0)/ncol(mat))>0.9)
 ```
-If you have a dataset with low sparsity (eg. more than 5000 genes included in dowstream analysis), you can use `detection_rate=0.95` to filter more genes, which can help reduce the running time. In all the cases we have tested, this won't change the results. If you have few genes included in downstream analysis (eg. fewer than 100 genes), you can set `detection_rate=0.85` to include more genes. But this is not recommanded as it simply means the quality of your data is poor.
+If you have a dataset with low sparsity (eg. more than 5000 genes included in dowstream analysis), you can use `detection_rate=0.95` to filter more genes, which can help reduce the running time. In all the cases we have tested, this won't change the results. If you have few genes included in downstream analysis (eg. fewer than 100 genes), you can set `detection_rate=0.85` to include more genes. But this is not recommanded as it simply means the quality of your data is poor.<br>
+Next we use DBscan algorithm to predict a set of genes with constant expression across all cells (internal spike-in genes, IS genes):
+```{r }
+spike_candidate<-dbscan.pick(gene_dis)
+```
 
 
