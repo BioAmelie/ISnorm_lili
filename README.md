@@ -10,7 +10,7 @@ The source code of ISnorm can be found in the file `source/ISnorm_function.R`. P
 We also provide one example dataset from Klein et al. 2015, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also put it into your work directory to run the scripts in this tutorial.<br>
 
 ## Normalization
-First, we shall import essential packges for ISnrom read the exmaple dataset:<br>
+First, we shall import R package `dbscan` and `parallel`, which is required by ISnorm and read the exmaple dataset:
 ```{r }
 library(dbscan)
 library(parallel)
