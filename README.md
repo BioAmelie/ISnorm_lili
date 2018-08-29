@@ -1,4 +1,4 @@
-# ISnorm
+# ISnorm tutorial
 ISnorm is a method implemented in R for normalizing single-cell RNA sequencing (scRNA-seq) data by a set of constantly expressed genes across all cells (internal spike-in genes, IS genes). We will demonstrate how to normalize scRNA-seq data using ISnorm in this tutorial.
 
 ## Installation
