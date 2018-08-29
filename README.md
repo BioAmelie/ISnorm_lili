@@ -22,5 +22,12 @@ The first step of ISnorm is to calculate pairwise distance between genes:
 ```{r }
 gene_dis<-calculate.dis(mat=mat,detection_rate=0.9,ncore=4)
 ```
-The function `calculate.dis` requires three parameters. The parameter `mat` specifies the input data, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell; The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used to calculate the distance. The function `calculate.dis` will return a symmetrical matrix containing the distance between genes.
-This is the most time-consuming step in ISnorm. Utilizing multiple cores can reduce the running time. Also 
+The function `calculate.dis` requires three parameters. The parameter `mat` specifies the input data, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell; The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used to calculate the distance. A symmetrical matrix containing the distance between genes will be returned.
+This is the most time-consuming step in ISnorm. Utilizing multiple cores can reduce the running time. Also you can check the number of genes included in downstream analysis (eg. the number of genes with detection rate larger than 0.9):
+```{r }
+sum(apply(mat,1,function(x) sum(x>0)/ncol(mat))>0.9)
+```
+If you have a dataset with low sparsity (eg. more than 5000 genes included in dowstream analysis), you can set `detection_rate` to a higher value such as 0.95 to filter more genes, which can help reduce the running time. In all the cases we have tested, this won't change the results. If you have few genes included in downstream analysis (eg. fewer than 100 genes), you can set `detection_rate` to a lower value such as 0.85 to include more genes. But this is not recommanded as it simply means the quality of your data is poor.
+
+
+apply(mat,1,function(x) sum(x>0)/ncol(mat))>0.9
