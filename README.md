@@ -35,7 +35,7 @@ The function `candidate.norm` requires 3 parameters. The parameter `mat` specifi
 
 The function `candidate.norm` returns a list containing the normalization results for each candidate set. The output `candidate_res$sf` is a numeric matrix containing the size factors, with each row representing one cell and each column representing size factors estimated by one candidate set. The output `candidate_res$inst` is a numeric matrix containing the instability scores, with each row representing one cell and each column representing instability scores estimated by one candidate set. Instability score can be used to measure the reliability of each candidate set (see our article for more details). The output `candidate_res$spike` is the same as `spike_candidate`.<br><br>
 
-An appropriate IS geneset can be chosen from the information provided by `candidate.norm`. We've also developed a method to choose the best IS geneset automatically:
+An appropriate IS geneset can be chosen manually from the information provided by `candidate.norm`. We've also developed a method to choose the best IS geneset automatically:
 ```{r }
 ISnorm_res<-opt.candidate(mat=mat,candidate_res=candidate_res,threshold=0.1,switch_check=2)
 ```
