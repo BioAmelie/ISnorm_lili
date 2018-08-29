@@ -6,13 +6,14 @@ ISnorm requires R 3.4.3 or higher, which is available in http://www.r-project.or
 ```{r }
 install.packages("dbscan")
 ```
-The source code of ISnorm can be found in the file `source/ISnorm_function.R`. Put it into your workding directory.
-We also provide two example datasets, one from Klein et al. 2015, containing scRNA-seq data of 933 mouse embryonic stem cells and one from Zheng et al. 2017, containing scRNA-seq data of 100 tumor infaltrating T cells from patient P0205. You should also put them into your work directory to run the scripts in this tutorial.<br><br>
+The source code of ISnorm can be found in the file `source/ISnorm_function.R`. Put it into your workding directory.<br>
+We also provide one example dataset from Klein et al. 2015, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also put it into your work directory to run the scripts in this tutorial.<br><br>
 
 ## Normalization
-First, we shall import essential packges for ISnom read the expression matrix from two examples:<br><br>
+First, we shall import essential packges for ISnrom read the exmaple dataset:<br><br>
 ```{r }
 library(dbscan)
 library(parallel)
-esc<-read.table()
+mat<-as.matrix(read.csv(file="GSM1599494_ES_d0_main.csv",sep=",",header=F,row.names=1))
 ```
+The example dataset is a UMI-based matrix. But generally ISnorm accepts 
