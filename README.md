@@ -6,8 +6,8 @@ ISnorm requires R 3.4.3 or higher, which is available in http://www.r-project.or
 ```{r }
 install.packages("dbscan")
 ```
-The source code of ISnorm can be found in the file `source/ISnorm_function.R`. Put it into your workding directory.<br>
-We also provide one example dataset from Klein et al. 2015, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also put it into your work directory to run the scripts in this tutorial.
+The source code of ISnorm can be found in the file `source/ISnorm_function.R`. Put it into your work directory.<br>
+We also provide one example dataset from Klein et al. 2015, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also put it into your work directory to run the scripts below.
 
 ## Normalization
 Let us import ISnorm with required R packages and read the example dataset:
@@ -22,4 +22,5 @@ The first step of ISnorm is to calculate pairwise distance between genes:
 ```{r }
 gene_dis<-calculate.dis(mat=mat,detection_rate=0.9,ncore=4)
 ```
-The function `calculate.dis`
+The function `calculate.dis` requires three parameters. The parameter `mat` specifies the input data, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell; The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used to calculate the distance. The function `calculate.dis` will return a symmetrical matrix containing the distance between genes.
+This is the most time-consuming step in ISnorm. Utilizing multiple cores can reduce the running time. Also 
