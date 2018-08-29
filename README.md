@@ -2,7 +2,7 @@
 ISnorm is a method implemented in R for normalizing single-cell RNA sequencing (scRNA-seq) data by a set of constantly expressed genes across all cells (internal spike-in genes, IS genes). We will demonstrate how to normalize scRNA-seq data using ISnorm in this tutorial.
 
 ## Installation
-ISnorm requires R 3.4.3 or higher, which is available in http://www.r-project.org, and R package dbscan, which can be installed by running following command in R terminal:
+ISnorm requires R 3.4.3 or higher version, which is available in http://www.r-project.org, and R package dbscan, which can be installed by running following command in R terminal:
 ```{r }
 install.packages("dbscan")
 ```
