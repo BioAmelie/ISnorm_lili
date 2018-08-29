@@ -10,10 +10,16 @@ The source code of ISnorm can be found in the file `source/ISnorm_function.R`. P
 We also provide one example dataset from Klein et al. 2015, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also put it into your work directory to run the scripts in this tutorial.
 
 ## Normalization
-First, we shall import R package `dbscan` and `parallel`, which is required by ISnorm and read the exmaple dataset:
+Let us import ISnorm with required R packages and read the example dataset:
 ```{r }
 library(dbscan)
 library(parallel)
+source("ISnorm_function.R")
 mat<-as.matrix(read.csv(file="GSM1599494_ES_d0_main.csv",sep=",",header=F,row.names=1))
 ```
-The example dataset is a UMI-based matrix. But generally the inputs can be 
+The example dataset is a UMI count matrix. But generally the inputs can be in many forms, including un-normalized matrix such as UMI count, reads count and transcripts count, or normalized matrix such as rpm , tpm and fpkm (see our article for more details).<br>
+The first step of ISnorm is to calculate pairwise distance between genes:
+```{r }
+gene_dis<-calculate.dis(mat=mat,detection_rate=0.9,ncore=4)
+```
+The function `calculate.dis`
