@@ -10,10 +10,8 @@ The source code of ISnorm can be found in the file `source/ISnorm_function.R`. P
 We also provide one example dataset from [Klein *et al.*](https://linkinghub.elsevier.com/retrieve/pii/S0092867415005000) in the file `example.tar.gz`, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also extract it into your work directory to run the scripts below.
 
 ## Normalization
-Let us import ISnorm with required R packages and read the example dataset:
+Let us import ISnorm and read the example dataset:
 ```{r }
-library(dbscan)
-library(parallel)
 source("ISnorm_function.R")
 mat<-as.matrix(read.csv(file="GSM1599494_ES_d0_main.csv",sep=",",header=F,row.names=1))
 ```
