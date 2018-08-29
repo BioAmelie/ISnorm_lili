@@ -7,7 +7,7 @@ ISnorm requires R 3.4.3 or higher version, which is available in http://www.r-pr
 install.packages("dbscan")
 ```
 The source code of ISnorm can be found in the file `source/ISnorm_function.R`. Put it into your work directory.<br>
-We also provide one example dataset from Klein et al. 2015 in the file `example.tar.gz`, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also extract it into your work directory to run the scripts below.
+We also provide one example dataset from [Klein *et al.*](https://linkinghub.elsevier.com/retrieve/pii/S0092867415005000) in the file `example.tar.gz`, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also extract it into your work directory to run the scripts below.
 
 ## Normalization
 Let us import ISnorm with required R packages and read the example dataset:
