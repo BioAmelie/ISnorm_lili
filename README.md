@@ -1,5 +1,5 @@
 # ISnorm
-ISnorm is a method implemented in R for normalizing single-cell RNA sequencing (scRNA-seq) data. We will demonstrate how to normalize scRNA-seq data using ISnorm in this tutorial.<br>
+ISnorm is a method implemented in R for normalizing single-cell RNA sequencing (scRNA-seq) data. We will demonstrate how to normalize scRNA-seq data using ISnorm in this tutorial.
 
 ## Installation
 ISnorm requires R 3.4.3 or higher, which is available in http://www.r-project.org, and R package dbscan, which can be installed by running following command in R terminal:<br>
@@ -16,4 +16,4 @@ library(dbscan)
 library(parallel)
 mat<-as.matrix(read.csv(file="GSM1599494_ES_d0_main.csv",sep=",",header=F,row.names=1))
 ```
-The example dataset is a UMI-based matrix. But generally ISnorm accepts 
+The example dataset is a UMI-based matrix. But generally the inputs can be 
