@@ -2,12 +2,12 @@
 ISnorm is a method implemented in R for normalizing single-cell RNA sequencing (scRNA-seq) data. We will demonstrate how to normalize scRNA-seq data using ISnorm in this tutorial.
 
 ## Installation
-ISnorm requires R 3.4.3 or higher, which is available in http://www.r-project.org, and R package dbscan, which can be installed by running following command in R terminal:<br>
+ISnorm requires R 3.4.3 or higher, which is available in http://www.r-project.org, and R package dbscan, which can be installed by running following command in R terminal:
 ```{r }
 install.packages("dbscan")
 ```
 The source code of ISnorm can be found in the file `source/ISnorm_function.R`. Put it into your workding directory.<br>
-We also provide one example dataset from Klein et al. 2015, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also put it into your work directory to run the scripts in this tutorial.<br>
+We also provide one example dataset from Klein et al. 2015, containing scRNA-seq data of 933 mouse embryonic stem cells. You should also put it into your work directory to run the scripts in this tutorial.
 
 ## Normalization
 First, we shall import R package `dbscan` and `parallel`, which is required by ISnorm and read the exmaple dataset:
