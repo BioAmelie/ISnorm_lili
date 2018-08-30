@@ -40,7 +40,7 @@ sapply(candidate_res$spike,length)  ##check the number of genes in each candidat
 boxplot(candidate_res$inst)  ##draw a boxplot to see the instability score of cells for each candidate set
 apply(candidate_res$inst,2,mean)  ##check the average instability score for each candidate set
 ```
-An appropriate IS geneset can be chosen manually from the information above. We've also developed a method to choose the best IS geneset automatically:
+An appropriate IS geneset can be chosen manually from the information above (see our article for more details). We've also developed a method to choose the best IS geneset automatically:
 ```{r }
 ISnorm_res<-opt.candidate(mat=mat,candidate_res=candidate_res,threshold=0.1,switch_check=2)
 ```
