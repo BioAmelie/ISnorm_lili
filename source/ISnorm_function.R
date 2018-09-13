@@ -1,0 +1,118 @@
+library(dbscan)
+library(parallel)
+
+calculate.dor<-function(xx,yy){
+  retain<-xx!=0&yy!=0
+  ratio<-xx[retain]/yy[retain]
+  output<-sqrt(sum(log2(ratio/median(ratio))^2)/(sum(retain)-1))
+  return(output)
+}  ##calculate DoR between two vector
+
+estimate.ref<-function(mat,ref_gene){
+  mat<-mat[ref_gene,]
+  cell_sum<-colSums(mat)
+  mat<-mat[,cell_sum!=0]
+  cell_sum<-cell_sum[cell_sum!=0]
+  ref_expr<-apply(sweep(mat,2,cell_sum/median(cell_sum),FUN="/"),1,function(x) mean(x[x!=0]))
+  ref_expr<-sort(ref_expr)
+  return(ref_expr)
+}  ##calculate reference expression given internal spike-in genes
+
+estimate.sf<-function(cell,ref_expr){
+  cell<-cell[names(ref_expr)]
+  sf<-cell[cell!=0]/ref_expr[cell!=0]
+  inst<-sqrt(sum(log10(sf/median(sf))^2)/(length(sf)-1))
+  output<-c(median(sf),inst)
+  names(output)<-c("size_factor","inst")
+  return(output)
+}  ##calculate size factor for one cell
+
+calculate.dis<-function(mat,detection_rate=0.9,ncore=1){
+  mat2<-mat[apply(mat,1,function(x) sum(x>0)/length(x))>detection_rate,]
+  gene_dis<-matrix(0,nrow(mat2),nrow(mat2))
+  cl <- makePSOCKcluster(ncore)
+
+  for(i in 2:nrow(mat2)-1){
+    gene_dis[i,i:nrow(mat2)]<-parRapply(cl=cl,mat2[i:nrow(mat2),],calculate.dor,yy=mat2[i,])
+    gene_dis[i:nrow(mat2),i]<-gene_dis[i,i:nrow(mat2)]
+  }
+  stopCluster(cl)
+  rownames(gene_dis)<-rownames(mat2)
+  colnames(gene_dis)<-rownames(mat2)
+  return(gene_dis)
+}  ##calculate pairwise DoR distance between genes
+
+cluster.count<-function(x){
+  output<-numeric()
+  for(i in 1:max(x)){
+    output[i]<-sum(x==i)
+  }
+  return(output)
+}  ##count cluster size
+
+dbscan.pick<-function(dis,ngene=(1:floor(nrow(dis)/25))*5,solution=100){
+  genelist<-rownames(dis)
+  ngene<-ngene[ngene<=length(genelist)]
+  ngene<-sort(ngene)
+  dis<-as.dist(dis)
+  xx<-as.vector(dis)
+  xx<-xx[xx!=0]
+  step<-min(xx)
+  ngene_index<-1
+  output<-list()
+  while(ngene_index<=length(ngene)){
+    cluster<-0
+    while(max(cluster.count(cluster))<ngene[ngene_index]){
+      step<-step*10
+      cluster<-dbscan(dis,eps=step)$cluster
+    }
+    step<-step/10
+    cluster<-0
+    i<-1
+    while(i<=solution&ngene_index<=length(ngene)){
+      i<-i+1
+      cluster<-dbscan(dis,eps=step+step*9/solution*i)$cluster
+      if(max(cluster.count(cluster))<ngene[ngene_index]) next
+      ngene_index2<-max(which(max(cluster.count(cluster))>=ngene))
+      while(ngene_index<=ngene_index2){
+        output[[ngene_index]]<-genelist[cluster==which.max(cluster.count(cluster))]
+        ngene_index<-ngene_index+1
+      }
+    }
+  }
+  output<-output[c(T,!sapply(2:length(output),function(x) identical(output[[x-1]],output[[x]])))]
+  return(output)
+}  ##pick internal spike-in genes
+
+candidate.norm<-function(mat,spike_candidate,ncore=1){
+  cl <- makeCluster(ncore)
+  candidate_ref<-parLapply(cl,spike_candidate,estimate.ref,mat=mat)
+  temp<-lapply(candidate_ref,function(x) apply(mat,2,estimate.sf,ref=x))
+  stopCluster(cl)
+  ISnorm_res<-list(sf=sapply(temp,function(x) x[1,]),inst=sapply(temp,function(x) x[2,]))
+  ISnorm_res$spike<-spike_candidate
+  return(ISnorm_res)
+}  ##normalization by spike candidate
+
+opt.candidate<-function(mat,candidate_res,threshold=0.1,switch_check=2){
+  instability<-apply(candidate_res$inst,2,mean)
+  if(sum(instability<threshold)==0){
+    picked<-1
+  }
+  else{
+    picked<-max((1:length(candidate_res$spike))[instability<0.1])
+  }
+  expr<-sweep(mat,2,candidate_res$sf[,picked],FUN="/")
+  inst_cell<-candidate_res$inst[,picked]
+  ISgenes<-candidate_res$spike[[picked]]
+  warn<-F
+  for(i in 1:switch_check){
+    if((picked+i)<=length(candidate_res$spike)){
+      warn<-warn|(sum(candidate_res$spike[[picked]]%in%candidate_res$spike[[picked+i]])==0)
+    }
+  }
+  if(warn){
+    cat("Encounter with switch problem, IS genes may be not reliable.\n")
+  }
+  return(list(normalized=expr,size_factor=candidate_res$sf[,picked],ISgenes=ISgenes,inst_cell=inst_cell))
+}
