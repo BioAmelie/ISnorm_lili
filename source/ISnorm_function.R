@@ -18,14 +18,6 @@ estimate.ref<-function(mat,ref_gene){
   return(ref_expr)
 }  ##calculate reference expression given internal spike-in genes
 
-estimate.sf<-function(cell,ref_expr){
-  cell<-cell[names(ref_expr)]
-  sf<-cell[cell!=0]/ref_expr[cell!=0]
-  inst<-sqrt(sum(log10(sf/median(sf))^2)/(length(sf)-1))
-  output<-c(median(sf),inst)
-  names(output)<-c("size_factor","inst")
-  return(output)
-}  ##calculate size factor for one cell
 
 calculate.dis<-function(mat,detection_rate=0.9,ncore=1){
   mat2<-mat[apply(mat,1,function(x) sum(x>0)/length(x))>detection_rate,]
@@ -84,15 +76,6 @@ dbscan.pick<-function(dis,ngene=(1:floor(nrow(dis)/25))*5,solution=100){
   return(output)
 }  ##pick internal spike-in genes
 
-candidate.norm<-function(mat,spike_candidate,ncore=1){
-  cl <- makeCluster(ncore)
-  candidate_ref<-parLapply(cl,spike_candidate,estimate.ref,mat=mat)
-  temp<-lapply(candidate_ref,function(x) apply(mat,2,estimate.sf,ref=x))
-  stopCluster(cl)
-  ISnorm_res<-list(sf=sapply(temp,function(x) x[1,]),inst=sapply(temp,function(x) x[2,]))
-  ISnorm_res$spike<-spike_candidate
-  return(ISnorm_res)
-}  ##normalization by spike candidate
 
 opt.candidate<-function(mat,candidate_res,threshold=0.1,switch_check=2){
   instability<-apply(candidate_res$inst,2,mean)
@@ -115,4 +98,56 @@ opt.candidate<-function(mat,candidate_res,threshold=0.1,switch_check=2){
     cat("Encounter with switch problem, IS genes may be not reliable.\n")
   }
   return(list(normalized=expr,size_factor=candidate_res$sf[,picked],ISgenes=ISgenes,inst_cell=inst_cell))
+}
+
+
+estimate.sf<-function(cell,ref_expr){
+  cell<-cell[names(ref_expr)]
+  sf<-cell[cell!=0]/ref_expr[cell!=0]
+  ngene<-length(sf)
+  sf_es<-median(sf)
+  var<-sum(log10(sf/sf_es)^2)/(length(sf)-1)
+  output<-c(sf_es,var,length(sf))
+  names(output)<-c("size_factor","var","ngene")
+  return(output)
+}  ##calculate size factor for one cell
+
+candidate.norm<-function(mat,spike_candidate,ncore=1){
+  cl <- makeCluster(ncore)
+  candidate_ref<-parLapply(cl,spike_candidate,estimate.ref,mat=mat)
+  temp<-lapply(candidate_ref,function(x) apply(mat,2,estimate.sf,ref=x))
+  stopCluster(cl)
+  candidate_res<-list(sf=sapply(temp,function(x) x[1,]),inst=sqrt(sapply(temp,function(x) x[2,])),ngene=sapply(temp,function(x) x[3,]))
+  candidate_res$spike<-spike_candidate
+  
+  return(candidate_res)
+}  ##normalization by spike candidate
+
+opt.candidate<-function(mat,candidate_res,baseline_threshold=0.1,p_value=0.05,switch_check=2){
+  instability<-apply(candidate_res$inst,2,mean)
+  if(sum(instability<baseline_threshold)==0){
+    baseset<-1
+  }
+  else{
+    baseset<-max((1:length(candidate_res$spike))[instability<0.1])
+  }
+  inst<-candidate_res$inst
+  ngene<-candidate_res$ngene
+  pmat<-sapply(baseset:ncol(inst),function(x) pf((inst[,baseset]/inst[,x])^2,df1=ngene[,baseset]-1,df2=ngene[,x]-1))
+  picked<-max(which(apply(pmat,2,function(x) (sum(x<p_value)/length(x))<p_value)))+baseset-1
+  cat("Candidate set",picked,"is chosen.\n")
+  
+  expr<-sweep(mat,2,candidate_res$sf[,picked],FUN="/")
+  inst_cell<-candidate_res$inst[,picked]
+  ISgenes<-candidate_res$spike[[picked]]
+  warn<-F
+  for(i in 1:switch_check){
+    if((picked+i)<=length(candidate_res$spike)){
+      warn<-warn|(sum(candidate_res$spike[[picked]]%in%candidate_res$spike[[picked+i]])==0)
+    }
+  }
+  if(warn){
+    cat("Warning: encounter with switch problem, IS genes may be not reliable.\n")
+  }
+  return(list(normalized=expr,size_factor=candidate_res$sf[,picked],ISgenes=ISgenes,inst_cell=inst_cell,picked=picked))
 }
