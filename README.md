@@ -32,7 +32,7 @@ Next we use DBscan algorithm to predict IS genes:
 ```{r }
 spike_candidate<-dbscan.pick(dis=gene_dis,ngene=(1:floor(nrow(gene_dis)/25))*5,solution=100)
 ```
-The function `dbscan.pick` returns a list with each element containing a set of candidate IS geneset. It require 3 parameters. The parameter `dis` specifies the output from `calculate.dis`. The parameter `ngene` specifies a series of expected number of IS genes and the parameter `solution` specifies the increasing rate of scanning radius. See our article for detailed description of these two parameters. Generally there is no need to change them as they works well for almost all datasets.<br><br>
+The function `dbscan.pick` returns a list with each element containing one candidate geneset. It require 3 parameters. The parameter `dis` specifies the output from `calculate.dis`. The parameter `ngene` specifies a series of expected number of IS genes and the parameter `solution` specifies the increasing rate of scanning radius. See our article for detailed description of these two parameters. Generally there is no need to change them.<br><br>
 Then we normalize the matrix with each candidate set:
 ```{r }
 candidate_res<-candidate.norm(mat=mat,spike_candidate=spike_candidate,ncore=4)
