@@ -147,7 +147,7 @@ opt.candidate<-function(mat,candidate_res,baseline_threshold=0.1,p_value=0.05,sw
     }
   }
   if(warn){
-    cat("Warning: encounter with switch problem, IS genes may be not reliable.\n")
+    cat("Warning: the chosen geneset does not share common genes with other candidate genesets.\n")
   }
   return(list(normalized=expr,size_factor=candidate_res$sf[,picked],ISgenes=ISgenes,inst_cell=inst_cell,picked=picked))
 }
