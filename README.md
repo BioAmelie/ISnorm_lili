@@ -27,7 +27,7 @@ This is the most time-consuming step in ISnorm and generally will take several m
 ```{r }
 sum(apply(mat,1,function(x) sum(x>0)/length(x))>0.9)
 ```
-If the running time is too long, you can set `detection_rate=0.95` or other higher values to filter more genes. But we recommand `detection_rate=0.9` as it works well for all the datasets we've tested.<br><br>
+If the running time is too long, you can try `detection_rate=0.95` or other higher values to filter more genes. But we recommand `detection_rate=0.9` as it works well for all the datasets we've tested.<br><br>
 Next we use DBscan algorithm to predict IS genes:
 ```{r }
 spike_candidate<-dbscan.pick(dis=gene_dis,ngene=(1:floor(nrow(gene_dis)/25))*5,solution=100)
