@@ -22,14 +22,18 @@ The first step of ISnorm is to calculate pairwise distance between genes:
 ```{r }
 gene_dis<-calculate.dis(mat=mat,detection_rate=0.9,ncore=4)
 ```
-The function `calculate.dis` returns a symmetrical matrix containing the distance between genes. It requires 3 parameters. The parameter `mat` specifies expression matrix, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell. The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used to calculate the distance.<br><br>
-This is the most time-consuming step in ISnorm. Utilizing multiple cores can reduce the running time. If you have a dataset with low sparsity (eg. more than 5000 genes included after filtering), you can set `detection_rate=0.95` to filter more genes, which can help reduce the running time. But we recommand `detection_rate=0.9` as it works well for all the datasets we've tested.<br><br>
+The function `calculate.dis` returns a symmetrical matrix containing the distance between genes. It requires 3 parameters. The parameter `mat` specifies expression matrix, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell. The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used in parallel.<br><br>
+This is the most time-consuming step in ISnorm and generally will take several minutes. Utilizing multiple cores can reduce the running time. The running time depends on the number of genes after filtering. You can manually check the number of genes using the following command:
+```{r }
+sum(apply(mat,1,function(x) sum(x>0)/length(x))>0.9)
+```
+If you have a dataset with low sparsity (eg. more than 5000 genes included after filtering), you can set `detection_rate=0.95` to filter more genes, which can help reduce the running time. But we recommand `detection_rate=0.9` as it works well for all the datasets we've tested.<br><br>
 Next we use DBscan algorithm to predict IS genes:
 ```{r }
 spike_candidate<-dbscan.pick(dis=gene_dis,ngene=(1:floor(nrow(gene_dis)/25))*5,solution=100)
 ```
-The function `dbscan.pick` returns a list with each element containing a set of candidate IS geneset. It require 3 parameters. The parameter `dis` specifies the output from `calculate.dis`. The parameter `ngene` specifies a series of expected number of IS genes and the parameter `solution` specifies the increasing rate of scanning radius. See our article for detailed description of these two parameters. You do not need to change them as they works well for almost all datasets.<br><br>
-We normalize the matrix with each candidate set:
+The function `dbscan.pick` returns a list with each element containing a set of candidate IS geneset. It require 3 parameters. The parameter `dis` specifies the output from `calculate.dis`. The parameter `ngene` specifies a series of expected number of IS genes and the parameter `solution` specifies the increasing rate of scanning radius. See our article for detailed description of these two parameters. Generally there is no need to change them as they works well for almost all datasets.<br><br>
+Then we normalize the matrix with each candidate set:
 ```{r }
 candidate_res<-candidate.norm(mat=mat,spike_candidate=spike_candidate,ncore=4)
 ```
@@ -42,7 +46,7 @@ sapply(candidate_res$spike,length)  ##check the number of genes in each candidat
 boxplot(candidate_res$inst)  ##draw a boxplot to see the instability score of cells for each candidate set
 apply(candidate_res$inst,2,mean)  ##check the average instability score for each candidate set
 ```
-An appropriate IS geneset can be chosen manually from the information above (see our article for more details). We've also developed a method to choose the best IS geneset automatically:
+An appropriate IS geneset can be chosen manually based on the information above (see our article for more details). We've also developed a method to choose the best IS geneset based on F-test:
 ```{r }
 ISnorm_res<-opt.candidate(mat=mat,candidate_res=candidate_res,baseline_threshold=0.1,p_value=0.05,switch_check=2)
 ```
