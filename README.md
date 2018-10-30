@@ -23,11 +23,11 @@ The first step of ISnorm is to calculate pairwise distance between genes:
 gene_dis<-calculate.dis(mat=mat,detection_rate=0.9,ncore=4)
 ```
 The function `calculate.dis` returns a symmetrical matrix containing the distance between genes. It requires 3 parameters. The parameter `mat` specifies expression matrix, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell. The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used in parallel.<br><br>
-This is the most time-consuming step in ISnorm and generally will take several minutes. Utilizing multiple cores can reduce the running time. The running time depends on the number of genes after filtering. You can manually check the number of genes using the following command:
+This is the most time-consuming step in ISnorm and generally will take several minutes. Utilizing multiple cores can reduce the running time. The running time mainly depends on the number of genes retained after filtering. You can manually check it using the following command:
 ```{r }
 sum(apply(mat,1,function(x) sum(x>0)/length(x))>0.9)
 ```
-If you have a dataset with low sparsity (eg. more than 5000 genes included after filtering), you can set `detection_rate=0.95` to filter more genes, which can help reduce the running time. But we recommand `detection_rate=0.9` as it works well for all the datasets we've tested.<br><br>
+If the running time is too long, you can set `detection_rate=0.95` or other higher values to filter more genes. But we recommand `detection_rate=0.9` as it works well for all the datasets we've tested.<br><br>
 Next we use DBscan algorithm to predict IS genes:
 ```{r }
 spike_candidate<-dbscan.pick(dis=gene_dis,ngene=(1:floor(nrow(gene_dis)/25))*5,solution=100)
