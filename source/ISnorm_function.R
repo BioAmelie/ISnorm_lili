@@ -140,14 +140,5 @@ opt.candidate<-function(mat,candidate_res,baseline_threshold=0.1,p_value=0.05,sw
   expr<-sweep(mat,2,candidate_res$sf[,picked],FUN="/")
   inst_cell<-candidate_res$inst[,picked]
   ISgenes<-candidate_res$spike[[picked]]
-  warn<-F
-  for(i in 1:switch_check){
-    if((picked+i)<=length(candidate_res$spike)){
-      warn<-warn|(sum(candidate_res$spike[[picked]]%in%candidate_res$spike[[picked+i]])==0)
-    }
-  }
-  if(warn){
-    cat("Warning: the chosen geneset does not share common genes with other candidate genesets.\n")
-  }
   return(list(normalized=expr,size_factor=candidate_res$sf[,picked],ISgenes=ISgenes,inst_cell=inst_cell,picked=picked))
 }
