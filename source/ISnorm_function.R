@@ -123,7 +123,7 @@ candidate.norm<-function(mat,spike_candidate,ncore=1){
   return(candidate_res)
 }  ##normalization by spike candidate
 
-opt.candidate<-function(mat,candidate_res,baseline_threshold=0.1,p_value=0.05,switch_check=2){
+opt.candidate<-function(mat,candidate_res,baseline_threshold=0.1,p_value=0.05){
   instability<-apply(candidate_res$inst,2,mean)
   if(sum(instability<baseline_threshold)==0){
     baseset<-1
