@@ -20,9 +20,9 @@ mat<-as.matrix(read.csv(file="GSM1599494_ES_d0_main.csv",sep=",",header=F,row.na
 The example dataset is a UMI count matrix. But generally the inputs can be in many forms, including un-normalized matrix such as UMI count, reads count and transcripts count, or normalized matrix such as rpm , tpm and fpkm (see our article for more details).<br>
 The first step of ISnorm is to calculate pairwise distance between genes:
 ```{r }
-gene_dis<-calculate.dis(mat=mat,detection_rate=0.9,ncore=4)
+gene_dis<-calculate.dis(mat=mat,detection_rate=0.9,ncore=4,exclude="")
 ```
-The function `calculate.dis` returns a symmetrical matrix containing the distance between genes. It requires 3 parameters. The parameter `mat` specifies expression matrix, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell. The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used in parallel.<br><br>
+The function `calculate.dis` returns a symmetrical matrix containing the distance between genes. It requires 3 parameters. The parameter `mat` specifies expression matrix, which is a numeric matrix containing expression values, with each row representing one gene and each column representing one cell. The parameter `detection_rate` specifies threshold to filter genes; `detection_rate=0.9` means genes without at least 90% cells having nonzero expression will not be included in further analyis. The parameter `ncore` specifies the number of cores used in parallel. The parameter `exclude` forcely excludes some genes from analysis (e.g. excluding mitochondral genes by setting `rownames(mat)[grep("^mt-",rownames(mat),ignore.case=T)]`). <br><br>
 This is the most time-consuming step in ISnorm and generally will take several minutes. Utilizing multiple cores can reduce the running time. The running time mainly depends on the number of genes retained after filtering. You can manually check it using the following command:
 ```{r }
 sum(apply(mat,1,function(x) sum(x>0)/length(x))>0.9)
